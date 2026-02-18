@@ -50,7 +50,9 @@ ${email.body}`;
     });
 
     const text = response.content[0].text.trim();
-    const parsed = JSON.parse(text);
+// Strip markdown code fences if present
+const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+const parsed = JSON.parse(cleaned);
 
     // Drop low-confidence results (likely not job emails)
     if (parsed.confidence < 0.6) return null;
