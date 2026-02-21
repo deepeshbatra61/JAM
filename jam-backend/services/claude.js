@@ -50,12 +50,15 @@ ${email.body}`;
     });
 
     const text = response.content[0].text.trim();
-// Strip markdown code fences if present
-const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-const parsed = JSON.parse(cleaned);
+    console.log("[Claude] Raw response:", text); // ADD THIS LINE
+    const parsed = JSON.parse(text);
+    console.log("[Claude] Parsed:", JSON.stringify(parsed)); // ADD THIS LINE
 
     // Drop low-confidence results (likely not job emails)
-    if (parsed.confidence < 0.6) return null;
+    if (parsed.confidence < 0.6) {
+      console.log("[Claude] Skipped - low confidence:", parsed.confidence); // ADD THIS LINE
+      return null;
+    }
 
     return {
       ...parsed,
