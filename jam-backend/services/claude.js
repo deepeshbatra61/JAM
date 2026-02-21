@@ -43,7 +43,7 @@ ${email.body}`;
 
 try {
     const response = await client.messages.create({
-      model: "claude-haiku-4-5-20251001", // fast + cheap for parsing
+      model: "claude-haiku-4-5-20251001",
       max_tokens: 500,
       system: SYSTEM_PROMPT,
       messages: [{ role: "user", content: userMessage }],
@@ -52,8 +52,16 @@ try {
     const text = response.content[0].text.trim();
     console.log("[Claude] Raw response:", text);
     
-    // Strip markdown code fences if present
-    const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    // Strip markdown code fences - more aggressive approach
+    let cleaned = text;
+    if (text.includes('```')) {
+      // Extract content between code fences
+      const parts = text.split('```');
+      cleaned = parts.length > 1 ? parts[1] : text;
+      // Remove "json" label if present at start
+      cleaned = cleaned.replace(/^json\s*\n?/, '').trim();
+    }
+    
     const parsed = JSON.parse(cleaned);
     console.log("[Claude] Parsed:", JSON.stringify(parsed));
 
