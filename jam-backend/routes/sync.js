@@ -57,8 +57,9 @@ async function runSync(userId, refreshToken, lastSyncAt) {
     continue; 
   }
 
-      const domain = extractDomain(email.from) || parsed.company.toLowerCase().replace(/\s+/g, "") + ".com";
-
+const domain = extractDomain(email.from) || parsed.company.toLowerCase().replace(/\s+/g, "") + ".com";
+      console.log(`[Sync] ${parsed.company}: Extracted domain = ${domain}, from = ${email.from}`);
+      
       // Check if application already exists (match by company domain + user)
       const { data: existing } = await supabase
         .from("applications")
@@ -66,7 +67,9 @@ async function runSync(userId, refreshToken, lastSyncAt) {
         .eq("user_id", userId)
         .ilike("domain", `%${domain}%`)
         .maybeSingle();
-
+      
+      console.log(`[Sync] ${parsed.company}: Found existing?`, existing);
+      
       if (existing) {
         // Update status if the new status is further along the pipeline
         const statusOrder = { Applied:0, Acknowledged:1, Screening:2, Interview:3, Offer:4, Rejected:5 };
