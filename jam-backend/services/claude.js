@@ -41,7 +41,7 @@ DATE: ${email.date}
 BODY:
 ${email.body}`;
 
-  try {
+try {
     const response = await client.messages.create({
       model: "claude-haiku-4-5-20251001", // fast + cheap for parsing
       max_tokens: 500,
@@ -50,13 +50,16 @@ ${email.body}`;
     });
 
     const text = response.content[0].text.trim();
-    console.log("[Claude] Raw response:", text); // ADD THIS LINE
-    const parsed = JSON.parse(text);
-    console.log("[Claude] Parsed:", JSON.stringify(parsed)); // ADD THIS LINE
+    console.log("[Claude] Raw response:", text);
+    
+    // Strip markdown code fences if present
+    const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    const parsed = JSON.parse(cleaned);
+    console.log("[Claude] Parsed:", JSON.stringify(parsed));
 
     // Drop low-confidence results (likely not job emails)
     if (parsed.confidence < 0.6) {
-      console.log("[Claude] Skipped - low confidence:", parsed.confidence); // ADD THIS LINE
+      console.log("[Claude] Skipped - low confidence:", parsed.confidence);
       return null;
     }
 
