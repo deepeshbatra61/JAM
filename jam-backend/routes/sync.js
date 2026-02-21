@@ -48,9 +48,14 @@ async function runSync(userId, refreshToken, lastSyncAt) {
     let skipped = 0;
 
     for (const email of emails) {
-      // Parse with Claude
-      const parsed = await parseJobEmail(email);
-      if (!parsed) { skipped++; continue; }
+  // Parse with Claude
+  const parsed = await parseJobEmail(email);
+  console.log("[Sync] parseJobEmail returned:", parsed); // ADD THIS
+  if (!parsed) { 
+    console.log("[Sync] Skipping - parseJobEmail returned null"); // ADD THIS
+    skipped++; 
+    continue; 
+  }
 
       const domain = extractDomain(email.from) || parsed.company.toLowerCase().replace(/\s+/g, "") + ".com";
 
