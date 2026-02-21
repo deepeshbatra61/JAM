@@ -52,20 +52,26 @@ async function fetchJobEmails(refreshToken, afterDate = null) {
   const gmail = google.gmail({ version: "v1", auth });
 
   // Build search query
+// Build search query
   let query = [
     "(",
     "subject:(application received)",
     "OR subject:(thank you for applying)",
     "OR subject:(we received your application)",
     "OR subject:(application confirmed)",
+    "OR subject:(application submitted)",
     "OR subject:(your application to)",
     "OR subject:(application for)",
+    "OR subject:(successfully submitted)",
     "OR subject:(we'd like to schedule)",
     "OR subject:(interview invitation)",
     "OR subject:(moving forward)",
     "OR subject:(unfortunately)",
     "OR subject:(not moving forward)",
     "OR subject:(offer of employment)",
+    "OR from:(seek.com.au)",
+    "OR from:(linkedin.com)",
+    "OR from:(indeed.com)",
     ")",
   ].join(" ");
 
