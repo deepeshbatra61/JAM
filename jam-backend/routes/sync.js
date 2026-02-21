@@ -61,12 +61,30 @@ const domain = extractDomain(email.from) || parsed.company.toLowerCase().replace
       console.log(`[Sync] ${parsed.company}: Extracted domain = ${domain}, from = ${email.from}`);
       
       // Check if application already exists (match by company domain + user)
-      const { data: existing } = await supabase
-        .from("applications")
-        .select("id, status")
-        .eq("user_id", userId)
-        .ilike("domain", `%${domain}%`)
-        .maybeSingle();
+// For job boards, match by company+role instead of domain
+      const isJobBoard = ['seek.com', 'linkedin.com', 'indeed.com'].some(d => domain.includes(d));
+      
+      let existing = null;
+      if (isJobBoard) {
+        // Match by company name + role for job boards
+        const { data } = await supabase
+          .from("applications")
+          .select("id, status")
+          .eq("user_id", userId)
+          .eq("company", parsed.company)
+          .eq("role", parsed.role || "")
+          .maybeSingle();
+        existing = data;
+      } else {
+        // Match by domain for direct company emails
+        const { data } = await supabase
+          .from("applications")
+          .select("id, status")
+          .eq("user_id", userId)
+          .ilike("domain", `%${domain}%`)
+          .maybeSingle();
+        existing = data;
+      }
       
       console.log(`[Sync] ${parsed.company}: Found existing?`, existing);
       
